@@ -1,0 +1,23 @@
+name: Videoads
+version: @version@
+main: space.rph.videoads.Videoads
+api-version: 1.16
+authors: [ Rph ]
+description: Video ads in minecraft?!? Absolutely!
+website: rph.space
+
+commands:
+  image:
+    description: aÆ
+    usage: /image
+  image2:
+    description: ÆÆ
+    usage: /image2
+  image3:
+    description: Æ
+    usage: /image3
+  ae:
+    description: f
+    usage: frogcat
+
+depend: [ProtocolLib]

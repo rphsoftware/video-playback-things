@@ -1,0 +1,9 @@
+# step 1:
+# make ramdisk
+sudo mount -t tmpfs -o size=64G tmpfs /home/rph/ramdisk
+mkdir /home/rph/ramdisk/desktopstreaming
+mkdir /home/rph/ramdisk/desktopstreaming/input
+mkdir /home/rph/ramdisk/desktopstreaming/maps
+
+ffmpeg -video_size 1920x1200 -framerate 30 -f x11grab -i :0.0+0,0 -vf "scale=1024:640" %d.png     
+

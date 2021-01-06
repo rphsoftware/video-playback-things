@@ -1,0 +1,11 @@
+{
+  "name": "dirwatch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.4.2",
+    "express": "^4.17.1",
+    "sharp": "^0.26.1"
+  }
+}
