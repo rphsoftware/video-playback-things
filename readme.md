@@ -23,6 +23,3 @@ Run /videoads:image3 <number> to explicitly set the number of maps involved
 
 Run /videoads:image <number> to start the streaming. Number here is the starting map ID.
 
-## Join on discord
-
-https://discord.gg/uRRypMxST4
