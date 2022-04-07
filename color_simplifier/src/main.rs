@@ -7,7 +7,8 @@ use std::fs::File;
 use std::io::{Error, ErrorKind, Write, BufWriter};
 use crate::color_utils::{join_colors, split_colors};
 use crate::color_simplifier::generate_map_palette;
-use std::fs;
+use std::{fs, thread};
+use std::sync::{Arc, Mutex};
 
 mod color_simplifier;
 mod color_utils;
@@ -21,15 +22,47 @@ fn main() {
     watcher.watch("/home/rph/ramdisk/desktopstreaming/input/", RecursiveMode::NonRecursive).unwrap();
     let mut pal = generate_map_palette().unwrap();
 
-    let mut indox = 0;
+    let mut indox = 0;/*
     // Populate palette
-    for i in 0..0xFFFFFF {
-        pal.simplify(i);
+    let mut threads = Vec::new();
+    let mut results = vec![0; 0x1000000];
+    let resarc = Arc::new(Mutex::new(results));
 
-        if i % 0xFFF == 0 {
-            println!("{} / {}", i, 0xFFFFFF);
-        }
+    for i in 0..32 {
+        let lowerBoundary = i * 0x80000;
+        let upperBoundary = (i * 0x80000) + 0x80000;
+        let ac = resarc.clone();
+        threads.push(thread::spawn(move || {
+            let mut b = vec![0; 0x1000000];
+            let mut cs = generate_map_palette().unwrap();
+            for m in lowerBoundary..upperBoundary {
+                b[m] = cs.simplify(m as u32);
+                if m % 0x200 == 0 {
+                    let prcl = upperBoundary - lowerBoundary;
+                    let prcu = upperBoundary - m;
+                    println!("{}", (prcu as f64) / (prcl as f64));
+                }
+            }
+
+            let mut g = ac.lock().unwrap();
+            for m in lowerBoundary..upperBoundary {
+                g[m] = b[m];
+            }
+        }));
     }
+
+    for i in 0..32 {
+        let mut thr = threads.remove(0);
+        thr.join();
+        println!("{} joined", i);
+    }
+
+
+    let mut f = File::create("dump.json").unwrap();
+    let data = resarc.lock().unwrap().clone();
+    f.write(serde_json::to_string(&data).unwrap().as_ref());
+
+*/
     loop {
         match rx.recv() {
             Ok(Create(event)) => {

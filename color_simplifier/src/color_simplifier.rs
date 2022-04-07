@@ -13,6 +13,7 @@
 use crate::color_utils::{join_colors, split_colors};
 use std::collections::HashMap;
 use std::i64::MAX;
+use deltae::{Delta, DEMethod, LabValue};
 use serde_json::Value;
 
 #[allow(dead_code)]
@@ -38,10 +39,13 @@ impl ColorPalette {
             return self.simplification_cache[color as usize] as usize;
         }
 
-        let mut closest_delta: i64 = MAX;
+        let mut closest_delta: f32 = f32::MAX;
         let mut pick : usize = 0;
 
         let (r, g, b) = split_colors(color);
+        let l0 = lab::Lab::from_rgb(&[r, g, b]);
+        let l0 = LabValue::new(l0.l, l0.a, l0.b).unwrap();
+
         for i in 0..self.pal.len() {
             let iter_color = self.pal[i];
             if iter_color == color {
@@ -49,13 +53,13 @@ impl ColorPalette {
                 return i;
             } else {
                 let (p_r, p_g, p_b) = split_colors(iter_color as u32);
-                let factor_r = (p_r as i64) - (r as i64);
-                let factor_g = (p_g as i64) - (g as i64);
-                let factor_b = (p_b as i64) - (b as i64);
+                let l1 = lab::Lab::from_rgb(&[p_r, p_g, p_b]);
+                let l1 = LabValue::new(l1.l, l1.a, l1.b).unwrap();
 
-                let delta = (factor_r * factor_r) + (factor_g * factor_g) + (factor_b * factor_b);
-                if delta < closest_delta {
-                    closest_delta = delta;
+                let delta = l0.delta(l1, DEMethod::DE2000);
+
+                if *delta.value() < closest_delta {
+                    closest_delta = *delta.value();
                     pick = i;
                 }
             }
@@ -70,6 +74,8 @@ impl ColorPalette {
 pub fn generate_map_palette() -> std::io::Result<ColorPalette> {
     let hm : HashMap<u32, usize> = HashMap::new();
     let mut c = ColorPalette{ pal: vec![], simplification_cache: vec![255; 0x1000000] };
+    let mut c2 = serde_json::from_str(include_str!("../dump.json")).unwrap();
+    c.simplification_cache = c2;
 
     let v: Value = serde_json::from_str(include_str!("colors.json"))?;
 
